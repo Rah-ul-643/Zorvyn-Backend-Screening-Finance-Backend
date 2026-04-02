@@ -21,7 +21,7 @@ app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
 });
 
-// Centralized error handler (must be last)
+// Centralized error handler
 app.use(errorHandler);
 
 module.exports = app;
