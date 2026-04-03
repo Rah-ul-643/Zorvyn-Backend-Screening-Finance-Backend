@@ -8,7 +8,7 @@
   "variable": [
     {
       "key": "BASE_URL",
-      "value": "https://zorvyn-backend-screening-finance-backend.onrender.com//api",
+      "value": "https://zorvyn-backend-screening-finance-backend.onrender.com/api",
       "type": "string"
     },
     {
