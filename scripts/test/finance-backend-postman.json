@@ -1,0 +1,1580 @@
+{
+  "info": {
+    "name": "Finance Dashboard API",
+    "description": "Complete test collection for the Finance Dashboard Backend. Import this file into Postman, set the BASE_URL variable, and run requests in order.",
+    "_postman_id": "finance-dashboard-api-v1",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "BASE_URL",
+      "value": "http://localhost:5000/api",
+      "type": "string"
+    },
+    {
+      "key": "ADMIN_TOKEN",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "ANALYST_TOKEN",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "VIEWER_TOKEN",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "RECORD_ID",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "VIEWER_USER_ID",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "THROWAWAY_USER_ID",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Auth",
+      "item": [
+        {
+          "name": "Register Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Has token', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.token).to.be.a('string');",
+                  "  pm.expect(json.user.role).to.eql('admin');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Admin User\",\n  \"email\": \"admin@finance.com\",\n  \"password\": \"admin123\",\n  \"role\": \"admin\"\n}"
+            },
+            "url": { "raw": "{{BASE_URL}}/auth/register", "host": ["{{BASE_URL}}"], "path": ["auth", "register"] }
+          }
+        },
+        {
+          "name": "Register Analyst",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Role is analyst', () => {",
+                  "  pm.expect(pm.response.json().user.role).to.eql('analyst');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Analyst User\",\n  \"email\": \"analyst@finance.com\",\n  \"password\": \"analyst123\",\n  \"role\": \"analyst\"\n}"
+            },
+            "url": { "raw": "{{BASE_URL}}/auth/register", "host": ["{{BASE_URL}}"], "path": ["auth", "register"] }
+          }
+        },
+        {
+          "name": "Register Viewer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Role is viewer', () => {",
+                  "  pm.expect(pm.response.json().user.role).to.eql('viewer');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Viewer User\",\n  \"email\": \"viewer@finance.com\",\n  \"password\": \"viewer123\",\n  \"role\": \"viewer\"\n}"
+            },
+            "url": { "raw": "{{BASE_URL}}/auth/register", "host": ["{{BASE_URL}}"], "path": ["auth", "register"] }
+          }
+        },
+        {
+          "name": "Login as Admin (saves token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Token saved', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.token).to.be.a('string');",
+                  "  pm.collectionVariables.set('ADMIN_TOKEN', json.token);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@finance.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": { "raw": "{{BASE_URL}}/auth/login", "host": ["{{BASE_URL}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Login as Analyst (saves token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('ANALYST_TOKEN', json.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"analyst@finance.com\",\n  \"password\": \"analyst123\"\n}"
+            },
+            "url": { "raw": "{{BASE_URL}}/auth/login", "host": ["{{BASE_URL}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Login as Viewer (saves token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('VIEWER_TOKEN', json.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"viewer@finance.com\",\n  \"password\": \"viewer123\"\n}"
+            },
+            "url": { "raw": "{{BASE_URL}}/auth/login", "host": ["{{BASE_URL}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Get Me (current user)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Returns user data', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.email).to.eql('admin@finance.com');",
+                  "  pm.expect(json.role).to.eql('admin');",
+                  "  pm.expect(json).to.not.have.property('password');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" }],
+            "url": { "raw": "{{BASE_URL}}/auth/me", "host": ["{{BASE_URL}}"], "path": ["auth", "me"] }
+          }
+        },
+        {
+          "name": "❌ Login with wrong password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 401', () => pm.response.to.have.status(401));",
+                  "pm.test('Error message correct', () => {",
+                  "  pm.expect(pm.response.json().message).to.eql('Invalid credentials');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@finance.com\",\n  \"password\": \"wrongpassword\"\n}"
+            },
+            "url": { "raw": "{{BASE_URL}}/auth/login", "host": ["{{BASE_URL}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "❌ Register with missing fields",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Validation message present', () => {",
+                  "  pm.expect(pm.response.json().message).to.include('required');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"incomplete@finance.com\"\n}"
+            },
+            "url": { "raw": "{{BASE_URL}}/auth/register", "host": ["{{BASE_URL}}"], "path": ["auth", "register"] }
+          }
+        },
+        {
+          "name": "❌ Register duplicate email",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 409', () => pm.response.to.have.status(409));",
+                  "pm.test('Duplicate message', () => {",
+                  "  pm.expect(pm.response.json().message).to.include('already exists');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Dupe\",\n  \"email\": \"admin@finance.com\",\n  \"password\": \"admin123\",\n  \"role\": \"viewer\"\n}"
+            },
+            "url": { "raw": "{{BASE_URL}}/auth/register", "host": ["{{BASE_URL}}"], "path": ["auth", "register"] }
+          }
+        },
+        {
+          "name": "❌ No token provided",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 401', () => pm.response.to.have.status(401));",
+                  "pm.test('No token message', () => {",
+                  "  pm.expect(pm.response.json().message).to.eql('No token provided');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{BASE_URL}}/records", "host": ["{{BASE_URL}}"], "path": ["records"] }
+          }
+        },
+        {
+          "name": "❌ Malformed token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 401', () => pm.response.to.have.status(401));",
+                  "pm.test('Invalid token message', () => {",
+                  "  pm.expect(pm.response.json().message).to.eql('Invalid or expired token');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer thisisnotavalidtoken" }],
+            "url": { "raw": "{{BASE_URL}}/records", "host": ["{{BASE_URL}}"], "path": ["records"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Financial Records",
+      "item": [
+        {
+          "name": "Create Record — Salary (saves ID)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Record created and ID saved', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.record.amount).to.eql(5000);",
+                  "  pm.expect(json.record.type).to.eql('income');",
+                  "  pm.collectionVariables.set('RECORD_ID', json.record._id);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 5000,\n  \"type\": \"income\",\n  \"category\": \"Salary\",\n  \"date\": \"2024-06-01\",\n  \"description\": \"June salary payment\"\n}"
+            },
+            "url": { "raw": "{{BASE_URL}}/records", "host": ["{{BASE_URL}}"], "path": ["records"] }
+          }
+        },
+        {
+          "name": "Create Record — Rent Expense",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Type is expense', () => {",
+                  "  pm.expect(pm.response.json().record.type).to.eql('expense');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 1200,\n  \"type\": \"expense\",\n  \"category\": \"Rent\",\n  \"date\": \"2024-06-02\",\n  \"description\": \"June rent\"\n}"
+            },
+            "url": { "raw": "{{BASE_URL}}/records", "host": ["{{BASE_URL}}"], "path": ["records"] }
+          }
+        },
+        {
+          "name": "Create Record — Food Expense",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 350,\n  \"type\": \"expense\",\n  \"category\": \"Food\",\n  \"date\": \"2024-06-10\",\n  \"description\": \"Grocery shopping\"\n}"
+            },
+            "url": { "raw": "{{BASE_URL}}/records", "host": ["{{BASE_URL}}"], "path": ["records"] }
+          }
+        },
+        {
+          "name": "Create Record — Freelance Income",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 800,\n  \"type\": \"income\",\n  \"category\": \"Freelance\",\n  \"date\": \"2024-06-15\",\n  \"description\": \"Design project payment\"\n}"
+            },
+            "url": { "raw": "{{BASE_URL}}/records", "host": ["{{BASE_URL}}"], "path": ["records"] }
+          }
+        },
+        {
+          "name": "❌ Create Record as Viewer (forbidden)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 403', () => pm.response.to.have.status(403));",
+                  "pm.test('Access denied message', () => {",
+                  "  pm.expect(pm.response.json().message).to.include('Access denied');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{VIEWER_TOKEN}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 100,\n  \"type\": \"income\",\n  \"category\": \"Other\",\n  \"date\": \"2024-06-01\"\n}"
+            },
+            "url": { "raw": "{{BASE_URL}}/records", "host": ["{{BASE_URL}}"], "path": ["records"] }
+          }
+        },
+        {
+          "name": "❌ Create Record as Analyst (forbidden)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{ANALYST_TOKEN}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 100,\n  \"type\": \"income\",\n  \"category\": \"Other\",\n  \"date\": \"2024-06-01\"\n}"
+            },
+            "url": { "raw": "{{BASE_URL}}/records", "host": ["{{BASE_URL}}"], "path": ["records"] }
+          }
+        },
+        {
+          "name": "❌ Create Record — Missing fields",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Validation message', () => {",
+                  "  pm.expect(pm.response.json().message).to.include('required');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 100\n}"
+            },
+            "url": { "raw": "{{BASE_URL}}/records", "host": ["{{BASE_URL}}"], "path": ["records"] }
+          }
+        },
+        {
+          "name": "❌ Create Record — Negative amount",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Amount error message', () => {",
+                  "  pm.expect(pm.response.json().message).to.include('positive number');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": -500,\n  \"type\": \"expense\",\n  \"category\": \"Food\",\n  \"date\": \"2024-06-01\"\n}"
+            },
+            "url": { "raw": "{{BASE_URL}}/records", "host": ["{{BASE_URL}}"], "path": ["records"] }
+          }
+        },
+        {
+          "name": "❌ Create Record — Invalid type",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Type error message', () => {",
+                  "  pm.expect(pm.response.json().message).to.include('income');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 100,\n  \"type\": \"savings\",\n  \"category\": \"Food\",\n  \"date\": \"2024-06-01\"\n}"
+            },
+            "url": { "raw": "{{BASE_URL}}/records", "host": ["{{BASE_URL}}"], "path": ["records"] }
+          }
+        },
+        {
+          "name": "Get All Records (no filter)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Has records and pagination', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.records).to.be.an('array');",
+                  "  pm.expect(json.pagination).to.have.property('total');",
+                  "  pm.expect(json.pagination).to.have.property('totalPages');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{VIEWER_TOKEN}}" }],
+            "url": { "raw": "{{BASE_URL}}/records", "host": ["{{BASE_URL}}"], "path": ["records"] }
+          }
+        },
+        {
+          "name": "Get Records — Filter by type=expense",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('All records are expense type', () => {",
+                  "  pm.response.json().records.forEach(r => {",
+                  "    pm.expect(r.type).to.eql('expense');",
+                  "  });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{VIEWER_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/records?type=expense",
+              "host": ["{{BASE_URL}}"],
+              "path": ["records"],
+              "query": [{ "key": "type", "value": "expense" }]
+            }
+          }
+        },
+        {
+          "name": "Get Records — Filter by type=income",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('All records are income type', () => {",
+                  "  pm.response.json().records.forEach(r => {",
+                  "    pm.expect(r.type).to.eql('income');",
+                  "  });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{VIEWER_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/records?type=income",
+              "host": ["{{BASE_URL}}"],
+              "path": ["records"],
+              "query": [{ "key": "type", "value": "income" }]
+            }
+          }
+        },
+        {
+          "name": "Get Records — Filter by category=food",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Category matches', () => {",
+                  "  pm.response.json().records.forEach(r => {",
+                  "    pm.expect(r.category.toLowerCase()).to.include('food');",
+                  "  });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{VIEWER_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/records?category=food",
+              "host": ["{{BASE_URL}}"],
+              "path": ["records"],
+              "query": [{ "key": "category", "value": "food" }]
+            }
+          }
+        },
+        {
+          "name": "Get Records — Filter by date range",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Records within date range', () => {",
+                  "  pm.response.json().records.forEach(r => {",
+                  "    const d = new Date(r.date);",
+                  "    pm.expect(d >= new Date('2024-06-01')).to.be.true;",
+                  "    pm.expect(d <= new Date('2024-06-15')).to.be.true;",
+                  "  });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{VIEWER_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/records?startDate=2024-06-01&endDate=2024-06-15",
+              "host": ["{{BASE_URL}}"],
+              "path": ["records"],
+              "query": [
+                { "key": "startDate", "value": "2024-06-01" },
+                { "key": "endDate", "value": "2024-06-15" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Records — Combined filters",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{VIEWER_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/records?type=expense&category=food&startDate=2024-01-01&endDate=2024-12-31",
+              "host": ["{{BASE_URL}}"],
+              "path": ["records"],
+              "query": [
+                { "key": "type", "value": "expense" },
+                { "key": "category", "value": "food" },
+                { "key": "startDate", "value": "2024-01-01" },
+                { "key": "endDate", "value": "2024-12-31" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Records — Search",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{VIEWER_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/records?search=salary",
+              "host": ["{{BASE_URL}}"],
+              "path": ["records"],
+              "query": [{ "key": "search", "value": "salary" }]
+            }
+          }
+        },
+        {
+          "name": "Get Records — Pagination page 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Pagination is correct', () => {",
+                  "  const p = pm.response.json().pagination;",
+                  "  pm.expect(p.page).to.eql(1);",
+                  "  pm.expect(p.limit).to.eql(2);",
+                  "  pm.expect(p.totalPages).to.be.at.least(1);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{VIEWER_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/records?page=1&limit=2",
+              "host": ["{{BASE_URL}}"],
+              "path": ["records"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "2" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Records — Pagination page 2",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{VIEWER_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/records?page=2&limit=2",
+              "host": ["{{BASE_URL}}"],
+              "path": ["records"],
+              "query": [
+                { "key": "page", "value": "2" },
+                { "key": "limit", "value": "2" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Single Record by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Record has populated createdBy', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json._id).to.eql(pm.collectionVariables.get('RECORD_ID'));",
+                  "  pm.expect(json.createdBy).to.have.property('name');",
+                  "  pm.expect(json.createdBy).to.have.property('email');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{VIEWER_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/records/{{RECORD_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["records", "{{RECORD_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "❌ Get Record — Invalid ID format",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Invalid ID message', () => {",
+                  "  pm.expect(pm.response.json().message).to.eql('Invalid ID format');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{VIEWER_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/records/notanid",
+              "host": ["{{BASE_URL}}"],
+              "path": ["records", "notanid"]
+            }
+          }
+        },
+        {
+          "name": "Update Record (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Amount updated', () => {",
+                  "  pm.expect(pm.response.json().record.amount).to.eql(9999);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 9999,\n  \"description\": \"Updated description\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/records/{{RECORD_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["records", "{{RECORD_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "❌ Update Record as Viewer (forbidden)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{VIEWER_TOKEN}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 999\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/records/{{RECORD_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["records", "{{RECORD_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Record (soft delete)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Deleted message', () => {",
+                  "  pm.expect(pm.response.json().message).to.eql('Record deleted');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/records/{{RECORD_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["records", "{{RECORD_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "Verify Deleted Record is Hidden",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Deleted record is not in list', () => {",
+                  "  const ids = pm.response.json().records.map(r => r._id);",
+                  "  pm.expect(ids).to.not.include(pm.collectionVariables.get('RECORD_ID'));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" }],
+            "url": { "raw": "{{BASE_URL}}/records", "host": ["{{BASE_URL}}"], "path": ["records"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. User Management",
+      "item": [
+        {
+          "name": "Get All Users (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Returns array and saves viewer ID', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.be.an('array');",
+                  "  pm.expect(json[0]).to.not.have.property('password');",
+                  "  const viewer = json.find(u => u.role === 'viewer');",
+                  "  if (viewer) pm.collectionVariables.set('VIEWER_USER_ID', viewer._id);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" }],
+            "url": { "raw": "{{BASE_URL}}/users", "host": ["{{BASE_URL}}"], "path": ["users"] }
+          }
+        },
+        {
+          "name": "❌ Get All Users as Analyst (forbidden)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ANALYST_TOKEN}}" }],
+            "url": { "raw": "{{BASE_URL}}/users", "host": ["{{BASE_URL}}"], "path": ["users"] }
+          }
+        },
+        {
+          "name": "Get User by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('No password in response', () => {",
+                  "  pm.expect(pm.response.json()).to.not.have.property('password');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/users/{{VIEWER_USER_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["users", "{{VIEWER_USER_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "Update User — Change role to analyst",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Role updated', () => {",
+                  "  pm.expect(pm.response.json().user.role).to.eql('analyst');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"analyst\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/users/{{VIEWER_USER_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["users", "{{VIEWER_USER_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "Update User — Deactivate account",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('isActive is false', () => {",
+                  "  pm.expect(pm.response.json().user.isActive).to.be.false;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": false\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/users/{{VIEWER_USER_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["users", "{{VIEWER_USER_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "❌ Login as Deactivated User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 403', () => pm.response.to.have.status(403));",
+                  "pm.test('Inactive message', () => {",
+                  "  pm.expect(pm.response.json().message).to.eql('Account is inactive');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"viewer@finance.com\",\n  \"password\": \"viewer123\"\n}"
+            },
+            "url": { "raw": "{{BASE_URL}}/auth/login", "host": ["{{BASE_URL}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Reactivate User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('isActive is true', () => {",
+                  "  pm.expect(pm.response.json().user.isActive).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": true,\n  \"role\": \"viewer\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/users/{{VIEWER_USER_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["users", "{{VIEWER_USER_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "❌ Update User — Invalid role",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Invalid role message', () => {",
+                  "  pm.expect(pm.response.json().message).to.eql('Invalid role');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"superuser\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/users/{{VIEWER_USER_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["users", "{{VIEWER_USER_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "Register Throwaway User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('THROWAWAY_USER_ID', pm.response.json().user.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Throwaway\",\n  \"email\": \"throwaway@finance.com\",\n  \"password\": \"delete123\",\n  \"role\": \"viewer\"\n}"
+            },
+            "url": { "raw": "{{BASE_URL}}/auth/register", "host": ["{{BASE_URL}}"], "path": ["auth", "register"] }
+          }
+        },
+        {
+          "name": "Delete Throwaway User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('User deleted', () => {",
+                  "  pm.expect(pm.response.json().message).to.eql('User deleted');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/users/{{THROWAWAY_USER_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["users", "{{THROWAWAY_USER_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "❌ Admin Deletes Themselves",
+          "event": [
+            {
+              "listen": "pre-request",
+              "script": {
+                "exec": [
+                  "// Fetch admin's own ID from /auth/me and store it",
+                  "pm.sendRequest({",
+                  "  url: pm.collectionVariables.get('BASE_URL') + '/auth/me',",
+                  "  method: 'GET',",
+                  "  header: { Authorization: 'Bearer ' + pm.collectionVariables.get('ADMIN_TOKEN') }",
+                  "}, (err, res) => {",
+                  "  pm.collectionVariables.set('ADMIN_USER_ID', res.json()._id);",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Cannot delete self', () => {",
+                  "  pm.expect(pm.response.json().message).to.include('cannot delete');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/users/{{ADMIN_USER_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["users", "{{ADMIN_USER_ID}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Dashboard",
+      "item": [
+        {
+          "name": "❌ Dashboard Blocked for Viewer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 403', () => pm.response.to.have.status(403));",
+                  "pm.test('Access denied message', () => {",
+                  "  pm.expect(pm.response.json().message).to.include('Access denied');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{VIEWER_TOKEN}}" }],
+            "url": { "raw": "{{BASE_URL}}/dashboard/summary", "host": ["{{BASE_URL}}"], "path": ["dashboard", "summary"] }
+          }
+        },
+        {
+          "name": "Summary — Total Income, Expense, Net",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Has all summary fields', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('totalIncome');",
+                  "  pm.expect(json).to.have.property('totalExpense');",
+                  "  pm.expect(json).to.have.property('netBalance');",
+                  "  pm.expect(json.netBalance).to.eql(json.totalIncome - json.totalExpense);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ANALYST_TOKEN}}" }],
+            "url": { "raw": "{{BASE_URL}}/dashboard/summary", "host": ["{{BASE_URL}}"], "path": ["dashboard", "summary"] }
+          }
+        },
+        {
+          "name": "Category Totals — All",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Is an array with category and total', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.be.an('array');",
+                  "  if (json.length > 0) {",
+                  "    pm.expect(json[0]).to.have.property('category');",
+                  "    pm.expect(json[0]).to.have.property('total');",
+                  "    pm.expect(json[0]).to.have.property('count');",
+                  "  }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ANALYST_TOKEN}}" }],
+            "url": { "raw": "{{BASE_URL}}/dashboard/category-totals", "host": ["{{BASE_URL}}"], "path": ["dashboard", "category-totals"] }
+          }
+        },
+        {
+          "name": "Category Totals — Filter expense only",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('All entries are expense type', () => {",
+                  "  pm.response.json().forEach(r => {",
+                  "    pm.expect(r.type).to.eql('expense');",
+                  "  });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ANALYST_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/dashboard/category-totals?type=expense",
+              "host": ["{{BASE_URL}}"],
+              "path": ["dashboard", "category-totals"],
+              "query": [{ "key": "type", "value": "expense" }]
+            }
+          }
+        },
+        {
+          "name": "Category Totals — Filter income only",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('All entries are income type', () => {",
+                  "  pm.response.json().forEach(r => {",
+                  "    pm.expect(r.type).to.eql('income');",
+                  "  });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ANALYST_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/dashboard/category-totals?type=income",
+              "host": ["{{BASE_URL}}"],
+              "path": ["dashboard", "category-totals"],
+              "query": [{ "key": "type", "value": "income" }]
+            }
+          }
+        },
+        {
+          "name": "Recent Transactions (default 10)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Returns at most 10 records', () => {",
+                  "  pm.expect(pm.response.json().length).to.be.at.most(10);",
+                  "});",
+                  "pm.test('Has populated createdBy', () => {",
+                  "  const records = pm.response.json();",
+                  "  if (records.length > 0) {",
+                  "    pm.expect(records[0].createdBy).to.have.property('name');",
+                  "  }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ANALYST_TOKEN}}" }],
+            "url": { "raw": "{{BASE_URL}}/dashboard/recent", "host": ["{{BASE_URL}}"], "path": ["dashboard", "recent"] }
+          }
+        },
+        {
+          "name": "Recent Transactions — Custom limit=3",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Returns at most 3 records', () => {",
+                  "  pm.expect(pm.response.json().length).to.be.at.most(3);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ANALYST_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/dashboard/recent?limit=3",
+              "host": ["{{BASE_URL}}"],
+              "path": ["dashboard", "recent"],
+              "query": [{ "key": "limit", "value": "3" }]
+            }
+          }
+        },
+        {
+          "name": "Recent Transactions — Cap at 50 (limit=999)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Capped at 50', () => {",
+                  "  pm.expect(pm.response.json().length).to.be.at.most(50);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ANALYST_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/dashboard/recent?limit=999",
+              "host": ["{{BASE_URL}}"],
+              "path": ["dashboard", "recent"],
+              "query": [{ "key": "limit", "value": "999" }]
+            }
+          }
+        },
+        {
+          "name": "Monthly Summary — Current year",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Returns 12 months', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.months).to.have.length(12);",
+                  "  json.months.forEach((m, i) => {",
+                  "    pm.expect(m.month).to.eql(i + 1);",
+                  "    pm.expect(m).to.have.property('income');",
+                  "    pm.expect(m).to.have.property('expense');",
+                  "    pm.expect(m).to.have.property('net');",
+                  "    pm.expect(m.net).to.eql(m.income - m.expense);",
+                  "  });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ANALYST_TOKEN}}" }],
+            "url": { "raw": "{{BASE_URL}}/dashboard/monthly-summary", "host": ["{{BASE_URL}}"], "path": ["dashboard", "monthly-summary"] }
+          }
+        },
+        {
+          "name": "Monthly Summary — Specific year (2024)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Year is correct and has 12 months', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.year).to.eql(2024);",
+                  "  pm.expect(json.months).to.have.length(12);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ANALYST_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/dashboard/monthly-summary?year=2024",
+              "host": ["{{BASE_URL}}"],
+              "path": ["dashboard", "monthly-summary"],
+              "query": [{ "key": "year", "value": "2024" }]
+            }
+          }
+        },
+        {
+          "name": "Weekly Summary — Last 7 days",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Always returns exactly 7 days', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.length(7);",
+                  "  json.forEach(d => {",
+                  "    pm.expect(d).to.have.property('day');",
+                  "    pm.expect(d).to.have.property('income');",
+                  "    pm.expect(d).to.have.property('expense');",
+                  "    pm.expect(d).to.have.property('net');",
+                  "    pm.expect(d.net).to.eql(d.income - d.expense);",
+                  "  });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ANALYST_TOKEN}}" }],
+            "url": { "raw": "{{BASE_URL}}/dashboard/weekly-summary", "host": ["{{BASE_URL}}"], "path": ["dashboard", "weekly-summary"] }
+          }
+        }
+      ]
+    }
+  ]
+}
